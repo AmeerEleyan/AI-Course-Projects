@@ -17,20 +17,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\AiProjectOne\Data\Places.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\AiProjectOne\Data\Roads.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
       </map>
     </option>
   </component>
