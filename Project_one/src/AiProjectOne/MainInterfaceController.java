@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -33,12 +32,6 @@ public class MainInterfaceController implements Initializable {
 
     @FXML // fx:id="anchorPane"
     private AnchorPane anchorPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btAnotherPath"
-    private Button btAnotherPath; // Value injected by FXMLLoader
-
-    @FXML // fx:id="btGo"
-    private Button btGo; // Value injected by FXMLLoader
 
     @FXML // fx:id="combDestinationPlace"
     private ComboBox<String> combDestinationPlace; // Value injected by FXMLLoader
@@ -76,11 +69,46 @@ public class MainInterfaceController implements Initializable {
     }
 
     public void handleBtGo() {
+        this.handleBtAnotherPath();
+        // The source city not selected
+        if (this.combSourcePlace.getValue() == null) {
+            Message.displayMessage("Warning", "Please select the source city");
+            return;
+        }
+        // The destination city not selected
+        if (this.combDestinationPlace.getValue() == null) {
+            Message.displayMessage("Warning", "Please select the destination city");
+            return;
+        }
+
+        String sourceCity = this.combSourcePlace.getValue();
+        String destinationCity = this.combDestinationPlace.getValue();
+
+        //the source city is the same destination city
+        if (sourceCity.equals(destinationCity)) {
+            Message.displayMessage("Warning", "the source city is the same destination city\nso the distance 0.0 Km");
+        } else {
+            ShortestPath shortestPath = this.graphPlace.findShortestPath(sourceCity, destinationCity);
+            if (shortestPath != null) {
+                this.handleBtAnotherPath();
+                this.txtDistance.setText(String.format("%.2f Km", shortestPath.getTotalDistance()));
+                String citiesInThePath = getPlacesInThePathAsString(shortestPath.getPlacesInThePath());
+                this.txtPath.setText(citiesInThePath);
+                this.drawPath(shortestPath.getPlacesInThePath());
+                this.txtSpaceComplexity.setText(shortestPath.getSpaceComplexity()+"");
+                this.txtTimeComplexity.setText(shortestPath.getTimeComplexity()+"");
+
+            } else {// There is no path between the source and destination
+                Message.displayMessage("Warning", "There is no path between " + sourceCity + " and " + destinationCity);
+            }
+        }
     }
 
     // Reset everything to default
     public void handleBtAnotherPath() {
         this.txtDistance.setText("0.0 Km");
+        this.txtSpaceComplexity.setText("0");
+        this.txtTimeComplexity.setText("0");
         this.txtPath.clear();
         if (linesForPath != null) {
             this.anchorPane.getChildren().removeAll(linesForPath); // remove lineFromPath
@@ -93,7 +121,7 @@ public class MainInterfaceController implements Initializable {
     // Methode to read data from file iteratively
     private void readPlacesRecordFromFile() {
         File places = new File("Places.csv");
-        int numberOfTowns = 0;
+        int numberOfTowns ;
         try {
             Scanner input = new Scanner(places);
             if (places.length() == 0) {

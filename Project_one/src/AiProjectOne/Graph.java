@@ -5,7 +5,9 @@
  */
 package AiProjectOne;
 
-import java.util.HashMap;
+import javafx.util.Pair;
+
+import java.util.*;
 
 public class Graph {
 
@@ -36,15 +38,56 @@ public class Graph {
     // Find the shortest path between two places
     public ShortestPath findShortestPath(String sourcePlace, String destinationPlace) {
         // there is no adjacent fore source place. so there is no path from source city to destination city
-        if (this.hashMap.get(sourcePlace)==null) {
+        if (this.hashMap.get(sourcePlace) == null) {
             throw new RuntimeException("Source place does not exist");
-        }else if(this.hashMap.get(destinationPlace)==null){
+        } else if (this.hashMap.get(destinationPlace) == null) {
             throw new RuntimeException("Destination place does not exist");
-        }else if(this.hashMap.get(sourcePlace).getAdjacent().size() == 0){
+        } else if (this.hashMap.get(sourcePlace).getAdjacent().size() == 0) {
             throw new RuntimeException("Can not move from this place to another place");
         }
 
-        return null;
+        //PriorityQueue<Pair<String, Float>> priorityQueue = new PriorityQueue<>((o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
+        //priorityQueue.add(new Pair<>(sourcePlace, 0f));
+
+        LinkedList<Place> placesInThePath = new LinkedList<>();
+        LinkedHashSet<String> visitedPlaces = new LinkedHashSet<>();
+        float totalDistance = 0.0f;
+
+        short spaceComplexity = 1, timeComplexity = 0;
+        float actualDistance, airDistance , totalCurrentDistance, maxActualDistance = 0;
+        String nextPlace = null, place = sourcePlace;
+        // find destination place
+        while (!place.equals(destinationPlace)) {
+
+            Node current = this.hashMap.get(place);
+            placesInThePath.add(current.getPlace());
+
+            if (!visitedPlaces.contains(place)) {
+                visitedPlaces.add(place);
+                totalCurrentDistance = Float.MAX_VALUE;
+                boolean foundPlace=false;
+                for (Adjacent adjacent : current.getAdjacent()) {
+                    actualDistance = adjacent.getDistance();
+                    if(adjacent.getAdjacentPlace().getPlaceName().equals(destinationPlace)){
+                        totalDistance+=actualDistance;
+                        foundPlace = true;
+                        break;
+                    }
+                    airDistance = calculateHeuristic(adjacent.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
+                    if (actualDistance + airDistance < totalCurrentDistance) {
+                        totalCurrentDistance = actualDistance + airDistance;
+                        maxActualDistance = actualDistance;
+                        nextPlace = adjacent.getAdjacentPlace().getPlaceName();
+                    }
+                }
+                if(foundPlace)break;
+                totalDistance += maxActualDistance;
+                place = nextPlace;
+            }
+
+        }
+
+        return new ShortestPath(spaceComplexity, timeComplexity, totalDistance, placesInThePath);
     }
 
 

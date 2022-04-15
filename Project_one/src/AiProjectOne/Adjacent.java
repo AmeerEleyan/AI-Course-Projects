@@ -20,7 +20,7 @@ public class Adjacent{
         this.distance = distance;
     }
 
-    public Place getAdjacentCity() {
+    public Place getAdjacentPlace() {
         return adjacentPlace;
     }
 
