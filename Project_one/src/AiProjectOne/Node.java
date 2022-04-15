@@ -7,12 +7,12 @@ package AiProjectOne;
 
 import java.util.LinkedList;
 
-public class Vertex {
+public class Node {
 
     private final Place place;
     private final LinkedList<Adjacent> adjacent;
 
-    public Vertex(Place place) {
+    public Node(Place place) {
         this.place = place;
         this.adjacent = new LinkedList<>();
     }

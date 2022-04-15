@@ -110,16 +110,16 @@ public class MainInterfaceController implements Initializable {
                 while (input.hasNext()) { // read line of data
                     try {
                         String lineOfData = input.nextLine();
+                        // get data of this place
+                        data = lineOfData.split(",");
                         if (line == 1) {
                             // get number of places and initialize the graph and hashMap
-                            numberOfTowns = Integer.parseInt(lineOfData.trim());
+                            numberOfTowns = Integer.parseInt(data[0].trim());
                             this.graphPlace = new Graph(numberOfTowns);
                             this.placesInMap = new HashMap<>(numberOfTowns);
                             this.placesNames = new String[numberOfTowns];
 
                         } else {
-                            // get data of this place
-                            data = lineOfData.split(",");
                             placeName = data[0].trim();
                             layout_X_Map = Short.parseShort(data[1].trim());
                             layout_Y_Map = Short.parseShort(data[2].trim());
@@ -168,7 +168,7 @@ public class MainInterfaceController implements Initializable {
                         data = lineOfData.split(",");
                         if (!data[0].equals(data[1])) {
                             distance=Float.parseFloat(data[2].trim());
-                            this.graphPlace.addAdjacent(data[0], data[1], distance);
+                            this.graphPlace.addBranch(data[0], data[1], distance);
                         } else {
                             Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + roads.getName() + "\n Neighbors are the same");
                         }

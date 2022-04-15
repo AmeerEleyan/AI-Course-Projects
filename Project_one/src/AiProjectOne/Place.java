@@ -34,6 +34,22 @@ public class Place implements Comparable<Place> {
         return this.layout_X_Map + " " + this.layout_Y_Map;
     }
 
+    public short getLayout_X_Map() {
+        return layout_X_Map;
+    }
+
+    public void setLayout_X_Map(short layout_X_Map) {
+        this.layout_X_Map = layout_X_Map;
+    }
+
+    public short getLayout_Y_Map() {
+        return layout_Y_Map;
+    }
+
+    public void setLayout_Y_Map(short layout_Y_Map) {
+        this.layout_Y_Map = layout_Y_Map;
+    }
+
     @Override
     public String toString() {
         return "City{" +

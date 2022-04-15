@@ -2,8 +2,6 @@ AbuQash,Surda,2.9
 AbuQash,LacasaMall,3.8
 AbuQash,Birzeit,3.6
 AlBireh,Ramallah,2.5
-AlBireh,Baytin,13.6
-AlJudeira,BirNabala,1
 AlMidya,Budrus,3.9
 AlMidya,DayrQadis,4.5
 Anata,Hizma,8.6
@@ -30,7 +28,6 @@ BeitUrAlTahta,Safa,2.8
 Bilin,KafrNima,2.4
 Bilin,KharbathaBaniHarith,3.7
 BirNabala,AlJudeira,1
-Birzeit,AbuQash,3.5
 Birzeit,EinSinya,5
 Budrus,Qibya,2.6
 DayrDibwan,Ramun,6.6
@@ -47,7 +44,6 @@ DuraElKaria,EinYabrud,2.9
 DuraElKaria,EinSinya,2
 EinQiniya,LacasaMall,2.3
 EinQiniya,Janiya,5.2
-EinSinya,Birzeit,5
 EinSinya,Silwad,5.2
 EinYabrud,Silwad,4.6
 EinYabrud,DayrJarir,6.2
