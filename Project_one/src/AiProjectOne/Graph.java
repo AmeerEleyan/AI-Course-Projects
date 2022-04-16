@@ -46,45 +46,32 @@ public class Graph {
             throw new RuntimeException("Can not move from this place to another place");
         }
 
-        //PriorityQueue<Pair<String, Float>> priorityQueue = new PriorityQueue<>((o1, o2) -> Float.compare(o1.getValue(), o2.getValue()));
-        //priorityQueue.add(new Pair<>(sourcePlace, 0f));
+        PriorityQueue<Distance> priorityQueue = new PriorityQueue<>();
+        priorityQueue.add(new Distance(sourcePlace, 0, 0));
 
         LinkedList<Place> placesInThePath = new LinkedList<>();
         LinkedHashSet<String> visitedPlaces = new LinkedHashSet<>();
         float totalDistance = 0.0f;
 
         short spaceComplexity = 1, timeComplexity = 0;
-        float actualDistance, airDistance , totalCurrentDistance, maxActualDistance = 0;
-        String nextPlace = null, place = sourcePlace;
+        float actualDistance, airDistance, totalCurrentDistance, maxActualDistance = 0;
+        String place;
         // find destination place
-        while (!place.equals(destinationPlace)) {
+        while (!priorityQueue.isEmpty()) {
 
+            place = priorityQueue.poll().getPlace();
             Node current = this.hashMap.get(place);
+            if (place.equals(destinationPlace)) break;
             placesInThePath.add(current.getPlace());
 
             if (!visitedPlaces.contains(place)) {
                 visitedPlaces.add(place);
-                totalCurrentDistance = Float.MAX_VALUE;
-                boolean foundPlace=false;
                 for (Adjacent adjacent : current.getAdjacent()) {
                     actualDistance = adjacent.getDistance();
-                    if(adjacent.getAdjacentPlace().getPlaceName().equals(destinationPlace)){
-                        totalDistance+=actualDistance;
-                        foundPlace = true;
-                        break;
-                    }
                     airDistance = calculateHeuristic(adjacent.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
-                    if (actualDistance + airDistance < totalCurrentDistance) {
-                        totalCurrentDistance = actualDistance + airDistance;
-                        maxActualDistance = actualDistance;
-                        nextPlace = adjacent.getAdjacentPlace().getPlaceName();
-                    }
+                    priorityQueue.add(new Distance(adjacent.getAdjacentPlace().getPlaceName(), actualDistance, airDistance));
                 }
-                if(foundPlace)break;
-                totalDistance += maxActualDistance;
-                place = nextPlace;
             }
-
         }
 
         return new ShortestPath(spaceComplexity, timeComplexity, totalDistance, placesInThePath);
