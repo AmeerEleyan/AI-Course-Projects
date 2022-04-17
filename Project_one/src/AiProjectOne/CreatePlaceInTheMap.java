@@ -16,7 +16,7 @@ public class CreatePlaceInTheMap {
 
         this.placeName=placeName;
 
-        this.placePosition = new Circle(4);
+        this.placePosition = new Circle(5);
         this.placePosition.setLayoutX(layout_X_Map);
         this.placePosition.setLayoutY(layout_Y_Map);
         this.placePosition.setStroke(Color.BLACK);

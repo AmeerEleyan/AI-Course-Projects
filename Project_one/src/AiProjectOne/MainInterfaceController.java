@@ -70,38 +70,38 @@ public class MainInterfaceController implements Initializable {
 
     public void handleBtGo() {
         this.handleBtAnotherPath();
-        // The source city not selected
+        // The source place not selected
         if (this.combSourcePlace.getValue() == null) {
-            Message.displayMessage("Warning", "Please select the source city");
+            Message.displayMessage("Warning", "Please select the source place");
             return;
         }
-        // The destination city not selected
+        // The destination place not selected
         if (this.combDestinationPlace.getValue() == null) {
-            Message.displayMessage("Warning", "Please select the destination city");
+            Message.displayMessage("Warning", "Please select the destination place");
             return;
         }
 
-        String sourceCity = this.combSourcePlace.getValue();
-        String destinationCity = this.combDestinationPlace.getValue();
+        String sourcePlace = this.combSourcePlace.getValue();
+        String destinationPlace = this.combDestinationPlace.getValue();
 
-        //the source city is the same destination city
-        if (sourceCity.equals(destinationCity)) {
-            Message.displayMessage("Warning", "the source city is the same destination city\nso the distance 0.0 Km");
+        //the source place is the same destination place
+        if (sourcePlace.equals(destinationPlace)) {
+            Message.displayMessage("Warning", "the source place is the same destination place\nso the distance 0.0 Km");
         } else {
-            this.graphPlace.stp(sourceCity, destinationCity);
-            ShortestPath shortestPath = new ShortestPath();
-            if (shortestPath != null) {
+            Graph.ShortestPath shortestPath;
+            try {
+                shortestPath = this.graphPlace.findShortestPath_AStarAlgorithm(sourcePlace, destinationPlace);
                 this.handleBtAnotherPath();
-                this.txtDistance.setText(String.format("%.2f Km", shortestPath.getTotalDistance()));
-                String citiesInThePath = getPlacesInThePathAsString(shortestPath.getPlacesInThePath());
-                this.txtPath.setText(citiesInThePath);
-                this.drawPath(shortestPath.getPlacesInThePath());
-                this.txtSpaceComplexity.setText(shortestPath.getSpaceComplexity()+"");
-                this.txtTimeComplexity.setText(shortestPath.getTimeComplexity()+"");
-
-            } else {// There is no path between the source and destination
-                Message.displayMessage("Warning", "There is no path between " + sourceCity + " and " + destinationCity);
+                this.txtDistance.setText(String.format("%.2f Km", shortestPath.totalDistance()));
+                String placesInThePath = getPlacesInThePathAsString(shortestPath.placesInThePath());
+                this.txtPath.setText(placesInThePath);
+                this.drawPath(shortestPath.placesInThePath());
+                this.txtSpaceComplexity.setText(shortestPath.spaceComplexity() + "");
+                this.txtTimeComplexity.setText(shortestPath.timeComplexity() + "");
+            } catch (RuntimeException exception) {
+                Message.displayMessage("Warning", exception.getMessage());
             }
+
         }
     }
 
@@ -122,7 +122,7 @@ public class MainInterfaceController implements Initializable {
     // Methode to read data from file iteratively
     private void readPlacesRecordFromFile() {
         File places = new File("Places.csv");
-        int numberOfTowns ;
+        int numberOfTowns;
         try {
             Scanner input = new Scanner(places);
             if (places.length() == 0) {
@@ -153,11 +153,11 @@ public class MainInterfaceController implements Initializable {
                             layout_X_Map = Short.parseShort(data[1].trim());
                             layout_Y_Map = Short.parseShort(data[2].trim());
                             place = new Place(placeName, layout_X_Map, layout_Y_Map);
-                            this.graphPlace.addNewCities(place);
+                            this.graphPlace.addNewPlace(place);
                             this.placesNames[indexPlaceName++] = placeName;
 
                             // add this place in the map and store in hash to access it later
-                            CreatePlaceInTheMap placeInMap = new CreatePlaceInTheMap(placeName,layout_X_Map, layout_Y_Map);
+                            CreatePlaceInTheMap placeInMap = new CreatePlaceInTheMap(placeName, layout_X_Map, layout_Y_Map);
                             placePosition = layout_X_Map + " " + layout_Y_Map;
                             this.placesInMap.put(placePosition, placeInMap);
                             this.anchorPane.getChildren().add(placeInMap.getPlacePosition());
@@ -180,7 +180,7 @@ public class MainInterfaceController implements Initializable {
     }
 
     // Methode to read places adjacent from file iteratively
-    private void readPlacesAdjacentFromFile(){
+    private void readPlacesAdjacentFromFile() {
         File roads = new File("Roads.csv");
         try {
             Scanner input = new Scanner(roads);
@@ -196,7 +196,7 @@ public class MainInterfaceController implements Initializable {
                         String lineOfData = input.nextLine();
                         data = lineOfData.split(",");
                         if (!data[0].equals(data[1])) {
-                            distance=Float.parseFloat(data[2].trim());
+                            distance = Float.parseFloat(data[2].trim());
                             this.graphPlace.addBranch(data[0], data[1], distance);
                         } else {
                             Message.displayMessage("Warning", " Invalid format in line # " + line + " in file " + roads.getName() + "\n Neighbors are the same");
@@ -250,6 +250,7 @@ public class MainInterfaceController implements Initializable {
         }
 
     }
+
     private void drawPath(LinkedList<Place> placesInThePath) {
         Line line; // line between two place
         this.placesInPath = new String[placesInThePath.size()]; // to coloring the places that in the path
