@@ -5,17 +5,17 @@
  */
 package AiProjectOne;
 
-public class Adjacent{
+public class Edge{
 
     private final Place adjacentPlace;
     private float distance;
 
     // use this constructor when add adjacent to check place name
-    public Adjacent(Place adjacentPlace) {
+    public Edge(Place adjacentPlace) {
         this.adjacentPlace = adjacentPlace;
     }
 
-    public Adjacent(Place adjacentPlace, float distance) {
+    public Edge(Place adjacentPlace, float distance) {
         this.adjacentPlace = adjacentPlace;
         this.distance = distance;
     }
@@ -35,7 +35,7 @@ public class Adjacent{
 
     @Override
     public boolean equals(Object o) {
-        return this.adjacentPlace.getPlaceName().compareTo(((Adjacent) o).adjacentPlace.getPlaceName()) == 0;
+        return this.adjacentPlace.getPlaceName().compareTo(((Edge) o).adjacentPlace.getPlaceName()) == 0;
     }
 
 }

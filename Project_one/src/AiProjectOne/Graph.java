@@ -5,8 +5,6 @@
  */
 package AiProjectOne;
 
-import javafx.util.Pair;
-
 import java.util.*;
 
 public class Graph {
@@ -35,6 +33,27 @@ public class Graph {
 
     }
 
+    public void stp(String sourcePlace, String destinationPlace) {
+        PriorityQueue<Distance> closedList = new PriorityQueue<>();
+        PriorityQueue<Distance> openList = new PriorityQueue<>();
+
+        Place src = this.hashMap.get(sourcePlace).getPlace();
+        Place dist = this.hashMap.get(destinationPlace).getPlace();
+        Distance start = new Distance(sourcePlace, 0, calculateHeuristic(src, dist));
+        openList.add(start);
+        String place;
+        while(!openList.isEmpty()) {
+            place = openList.peek().getPlaceName();
+            if (place.equals(destinationPlace)) break;
+            Node current = this.hashMap.get(place);
+            for(Edge edge: current.getAdjacent()) {
+                Place m = edge.getAdjacentPlace();
+                //float totalDistance = edge.getDistance()+
+            }
+        }
+
+    }
+
     // Find the shortest path between two places
     public ShortestPath findShortestPath(String sourcePlace, String destinationPlace) {
         // there is no adjacent fore source place. so there is no path from source city to destination city
@@ -59,17 +78,17 @@ public class Graph {
         // find destination place
         while (!priorityQueue.isEmpty()) {
 
-            place = priorityQueue.poll().getPlace();
+            place = priorityQueue.poll().getPlaceName();
             Node current = this.hashMap.get(place);
             if (place.equals(destinationPlace)) break;
             placesInThePath.add(current.getPlace());
 
             if (!visitedPlaces.contains(place)) {
                 visitedPlaces.add(place);
-                for (Adjacent adjacent : current.getAdjacent()) {
-                    actualDistance = adjacent.getDistance();
-                    airDistance = calculateHeuristic(adjacent.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
-                    priorityQueue.add(new Distance(adjacent.getAdjacentPlace().getPlaceName(), actualDistance, airDistance));
+                for (Edge edge : current.getAdjacent()) {
+                    actualDistance = edge.getDistance();
+                    airDistance = calculateHeuristic(edge.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
+                    priorityQueue.add(new Distance(edge.getAdjacentPlace().getPlaceName(), actualDistance, airDistance));
                 }
             }
         }
@@ -84,7 +103,7 @@ public class Graph {
         if (this.hashMap.get(parentName.trim()) != null && this.hashMap.get(adjacentName.trim()) != null) {
             Place place = this.hashMap.get(parentName.trim()).getPlace();
             Place adjacent = this.hashMap.get(adjacentName.trim()).getPlace();
-            if (this.hashMap.get(parentName.trim()).getAdjacent().contains(new Adjacent(adjacent))) {
+            if (this.hashMap.get(parentName.trim()).getAdjacent().contains(new Edge(adjacent))) {
                 Message.displayMessage("Warning", parentName + " and " + adjacentName + " is already existing as neighbors");
             } else {
                 this.hashMap.get(place.getPlaceName()).addAdjacent(adjacent, distance);

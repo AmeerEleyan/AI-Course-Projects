@@ -6,7 +6,7 @@
 package AiProjectOne;
 
 public class Distance implements Comparable<Distance> {
-    private String place;
+    private String placeName;
     private float actualDistance;
     private float airDistance;
 
@@ -14,8 +14,8 @@ public class Distance implements Comparable<Distance> {
 
     }
 
-    public Distance(String place, float actualDistance, float airDistance) {
-        this.place = place;
+    public Distance(String placeName, float actualDistance, float airDistance) {
+        this.placeName = placeName;
         this.actualDistance = actualDistance;
         this.airDistance = airDistance;
     }
@@ -40,16 +40,16 @@ public class Distance implements Comparable<Distance> {
         this.airDistance = airDistance;
     }
 
-    public String getPlace() {
-        return place;
+    public String getPlaceName() {
+        return placeName;
     }
 
-    public void setPlace(String place) {
-        this.place = place;
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
     }
 
     @Override
     public int compareTo(Distance o) {
-        return Float.compare((actualDistance + airDistance), (o.actualDistance + o.airDistance));
+        return Float.compare(this.getDistance(), o.getDistance());
     }
 }

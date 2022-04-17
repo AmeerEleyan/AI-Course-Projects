@@ -10,28 +10,28 @@ import java.util.LinkedList;
 public class Node {
 
     private final Place place;
-    private final LinkedList<Adjacent> adjacent;
+    private final LinkedList<Edge> edge;
 
     public Node(Place place) {
         this.place = place;
-        this.adjacent = new LinkedList<>();
+        this.edge = new LinkedList<>();
     }
 
     public Place getPlace() {
         return place;
     }
 
-    public LinkedList<Adjacent> getAdjacent() {
-        return adjacent;
+    public LinkedList<Edge> getAdjacent() {
+        return edge;
     }
 
     public void addAdjacent(Place adjacentPlace, float distance) {
-        this.adjacent.addFirst(new Adjacent(adjacentPlace, distance));
+        this.edge.addFirst(new Edge(adjacentPlace, distance));
     }
 
     @Override
     public String toString() {
-        return place.toString() + ": AdjacentPlace =>" + adjacent;
+        return place.toString() + ": AdjacentPlace =>" + edge;
     }
 
 }
