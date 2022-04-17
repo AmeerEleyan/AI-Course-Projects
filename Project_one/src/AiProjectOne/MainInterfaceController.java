@@ -88,7 +88,8 @@ public class MainInterfaceController implements Initializable {
         if (sourceCity.equals(destinationCity)) {
             Message.displayMessage("Warning", "the source city is the same destination city\nso the distance 0.0 Km");
         } else {
-            ShortestPath shortestPath = this.graphPlace.findShortestPath(sourceCity, destinationCity);
+            this.graphPlace.stp(sourceCity, destinationCity);
+            ShortestPath shortestPath = new ShortestPath();
             if (shortestPath != null) {
                 this.handleBtAnotherPath();
                 this.txtDistance.setText(String.format("%.2f Km", shortestPath.getTotalDistance()));

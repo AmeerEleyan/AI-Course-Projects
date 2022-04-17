@@ -9,16 +9,20 @@ import java.util.LinkedList;
 
 public class ShortestPath {
 
-    private final float totalDistance;
-    private final int spaceComplexity;
-    private final int timeComplexity;
-    private final LinkedList<Place> placesInThePath;
+    private float totalDistance;
+    private int spaceComplexity;
+    private int timeComplexity;
+    private LinkedList<Place> placesInThePath;
 
-    public ShortestPath(int spaceComplexity,  int timeComplexity, float totalDistance, LinkedList<Place> placesInThePath) {
-        this.spaceComplexity=spaceComplexity;
-        this.timeComplexity=timeComplexity;
+    public ShortestPath(int spaceComplexity, int timeComplexity, float totalDistance, LinkedList<Place> placesInThePath) {
+        this.spaceComplexity = spaceComplexity;
+        this.timeComplexity = timeComplexity;
         this.totalDistance = totalDistance;
         this.placesInThePath = placesInThePath;
+    }
+
+    public ShortestPath() {
+
     }
 
     public float getTotalDistance() {

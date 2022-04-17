@@ -33,29 +33,9 @@ public class Graph {
 
     }
 
+    // new version from the shortest path
     public void stp(String sourcePlace, String destinationPlace) {
-        PriorityQueue<Distance> closedList = new PriorityQueue<>();
-        PriorityQueue<Distance> openList = new PriorityQueue<>();
 
-        Place src = this.hashMap.get(sourcePlace).getPlace();
-        Place dist = this.hashMap.get(destinationPlace).getPlace();
-        Distance start = new Distance(sourcePlace, 0, calculateHeuristic(src, dist));
-        openList.add(start);
-        String place;
-        while(!openList.isEmpty()) {
-            place = openList.peek().getPlaceName();
-            if (place.equals(destinationPlace)) break;
-            Node current = this.hashMap.get(place);
-            for(Edge edge: current.getAdjacent()) {
-                Place m = edge.getAdjacentPlace();
-                //float totalDistance = edge.getDistance()+
-            }
-        }
-
-    }
-
-    // Find the shortest path between two places
-    public ShortestPath findShortestPath(String sourcePlace, String destinationPlace) {
         // there is no adjacent fore source place. so there is no path from source city to destination city
         if (this.hashMap.get(sourcePlace) == null) {
             throw new RuntimeException("Source place does not exist");
@@ -65,36 +45,84 @@ public class Graph {
             throw new RuntimeException("Can not move from this place to another place");
         }
 
-        PriorityQueue<Distance> priorityQueue = new PriorityQueue<>();
-        priorityQueue.add(new Distance(sourcePlace, 0, 0));
+        PriorityQueue<Node> closedList = new PriorityQueue<>();
+        PriorityQueue<Node> openList = new PriorityQueue<>();
 
-        LinkedList<Place> placesInThePath = new LinkedList<>();
-        LinkedHashSet<String> visitedPlaces = new LinkedHashSet<>();
-        float totalDistance = 0.0f;
-
-        short spaceComplexity = 1, timeComplexity = 0;
-        float actualDistance, airDistance, totalCurrentDistance, maxActualDistance = 0;
-        String place;
-        // find destination place
-        while (!priorityQueue.isEmpty()) {
-
-            place = priorityQueue.poll().getPlaceName();
-            Node current = this.hashMap.get(place);
-            if (place.equals(destinationPlace)) break;
-            placesInThePath.add(current.getPlace());
-
-            if (!visitedPlaces.contains(place)) {
-                visitedPlaces.add(place);
-                for (Edge edge : current.getAdjacent()) {
-                    actualDistance = edge.getDistance();
-                    airDistance = calculateHeuristic(edge.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
-                    priorityQueue.add(new Distance(edge.getAdjacentPlace().getPlaceName(), actualDistance, airDistance));
+        Node start = this.hashMap.get(sourcePlace);
+        Node end = this.hashMap.get(destinationPlace);
+        start.setF(start.getG() + start.calculateHeuristic(end.getPlace()));
+        openList.add(start);
+        Node currentPlace;
+        while (!openList.isEmpty()) {
+            currentPlace = openList.peek();
+            if (currentPlace.equals(end)) {
+                System.out.println(currentPlace.getG());
+                break;
+            }
+            for (Edge edge : currentPlace.getAdjacent()) {
+                float totalDistance = currentPlace.getG() + edge.getDistance();
+                Node edgeNode = this.hashMap.get(edge.getAdjacentPlace().getPlaceName());
+                if (!openList.contains(edgeNode) && !closedList.contains(edgeNode)) {
+                    edgeNode.setG(totalDistance);
+                    edgeNode.setF(edgeNode.getG() + edgeNode.calculateHeuristic(end.getPlace()));
+                    openList.add(edgeNode);
+                } else {
+                    if (totalDistance < edgeNode.getG()) {
+                        edgeNode.setG(totalDistance);
+                        edgeNode.setF(edgeNode.getG() + edgeNode.calculateHeuristic(end.getPlace()));
+                        if (closedList.contains(edgeNode)) {
+                            closedList.remove(edgeNode);
+                            openList.add(edgeNode);
+                        }
+                    }
                 }
             }
+            openList.remove(currentPlace);
+            closedList.add(currentPlace);
         }
-
-        return new ShortestPath(spaceComplexity, timeComplexity, totalDistance, placesInThePath);
     }
+
+    // Find the shortest path between two places
+//    public ShortestPath findShortestPath(String sourcePlace, String destinationPlace) {
+//        // there is no adjacent fore source place. so there is no path from source city to destination city
+//        if (this.hashMap.get(sourcePlace) == null) {
+//            throw new RuntimeException("Source place does not exist");
+//        } else if (this.hashMap.get(destinationPlace) == null) {
+//            throw new RuntimeException("Destination place does not exist");
+//        } else if (this.hashMap.get(sourcePlace).getAdjacent().size() == 0) {
+//            throw new RuntimeException("Can not move from this place to another place");
+//        }
+//
+//        PriorityQueue<Distance> priorityQueue = new PriorityQueue<>();
+//        priorityQueue.add(new Distance(sourcePlace, 0, 0));
+//
+//        LinkedList<Place> placesInThePath = new LinkedList<>();
+//        LinkedHashSet<String> visitedPlaces = new LinkedHashSet<>();
+//        float totalDistance = 0.0f;
+//
+//        short spaceComplexity = 1, timeComplexity = 0;
+//        float actualDistance, airDistance, totalCurrentDistance, maxActualDistance = 0;
+//        String place;
+//        // find destination place
+//        while (!priorityQueue.isEmpty()) {
+//
+//            place = priorityQueue.poll().getPlaceName();
+//            Node current = this.hashMap.get(place);
+//            if (place.equals(destinationPlace)) break;
+//            placesInThePath.add(current.getPlace());
+//
+//            if (!visitedPlaces.contains(place)) {
+//                visitedPlaces.add(place);
+//                for (Edge edge : current.getAdjacent()) {
+//                    actualDistance = edge.getDistance();
+//                    //   airDistance = calculateHeuristic(edge.getAdjacentPlace(), this.hashMap.get(destinationPlace).getPlace());
+//                    //  priorityQueue.add(new Distance(edge.getAdjacentPlace().getPlaceName(), actualDistance, airDistance));
+//                }
+//            }
+//        }
+//
+//        return new ShortestPath(spaceComplexity, timeComplexity, totalDistance, placesInThePath);
+//    }
 
 
     // Add adjacent to each other, because the road is two direction
@@ -113,35 +141,35 @@ public class Graph {
 
     }
 
-    private float calculateHeuristic(Place src, Place destination) {
-
-        /*
-         I calculate the distance between Ramallah and Beitunia on my map, the distance is: 90, and I
-         calculate it in Google map(air distance), the distance is: 3.85 Km.
-
-         I calculate the distance between DayrQadis and Shabtin on my map, the distance is: 84, and I
-         calculate it in Google map(air distance), the distance is: 2.96 Km.
-
-         I calculate the distance between Beit'Anan and Baytillu on my map, the distance is: 414, and I
-         calculate it in Google map(air distance), the distance is: 14 Km.
-
-          This function was used to calculate distance between two places on my map:
-          Chebyshev distance:
-         ---- D(p,q) = max(|px-qx|, |qy-qy|)--------
-          This metric is admissible and thus guarantees an optimal solution. It's also quick to calculate,
-          so it doesn't put a strain on resources in each iteration.
-
-
-          Then I calculate the drawingScale=(airDistance)/(distanceInMap), and take average between the three previous values,
-          ----------Final result: 0.0377F--------------
-          1 distance in map = 0.0377 Km
-         */
-
-        float distance = Math.max(Math.abs(src.getLayout_X_Map() - destination.getLayout_X_Map()), Math.abs(src.getLayout_Y_Map() - destination.getLayout_Y_Map()));
-
-        return distance * 0.0377F;
-
-    }
+//    private float calculateHeuristic(Place src, Place destination) {
+//
+//        /*
+//         I calculate the distance between Ramallah and Beitunia on my map, the distance is: 90, and I
+//         calculate it in Google map(air distance), the distance is: 3.85 Km.
+//
+//         I calculate the distance between DayrQadis and Shabtin on my map, the distance is: 84, and I
+//         calculate it in Google map(air distance), the distance is: 2.96 Km.
+//
+//         I calculate the distance between Beit'Anan and Baytillu on my map, the distance is: 414, and I
+//         calculate it in Google map(air distance), the distance is: 14 Km.
+//
+//          This function was used to calculate distance between two places on my map:
+//          Chebyshev distance:
+//         ---- D(p,q) = max(|px-qx|, |qy-qy|)--------
+//          This metric is admissible and thus guarantees an optimal solution. It's also quick to calculate,
+//          so it doesn't put a strain on resources in each iteration.
+//
+//
+//          Then I calculate the drawingScale=(airDistance)/(distanceInMap), and take average between the three previous values,
+//          ----------Final result: 0.0377F--------------
+//          1 distance in map = 0.0377 Km
+//         */
+//
+//        float distance = Math.max(Math.abs(src.getLayout_X_Map() - destination.getLayout_X_Map()), Math.abs(src.getLayout_Y_Map() - destination.getLayout_Y_Map()));
+//
+//        return distance * 0.0377F;
+//
+//    }
 
     @Override
     public String toString() {
