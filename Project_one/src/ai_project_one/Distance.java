@@ -3,17 +3,26 @@
  * ID: 1191076
  * At: 4/15/2022    11:42 PM
  */
-package AiProjectOne;
+package ai_project_one;
 
 public class Distance implements Comparable<Distance> {
     private final String placeName;
+    private String parentName;
     // is sum of the g and heuristic
-    private float f;
+    private float f = Float.MAX_VALUE;
     //is something we can (and do) calculate at any given step, and it's the distance between start and n
-    private float g;
+    private float g = Float.MAX_VALUE;
 
     public Distance(String placeName) {
         this.placeName = placeName;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     public Distance(String placeName, float f, float g) {

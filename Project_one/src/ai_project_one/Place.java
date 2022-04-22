@@ -3,7 +3,7 @@
  * ID: 1191076
  * At: 4/14/2022    10:29 PM
  */
-package AiProjectOne;
+package ai_project_one;
 
 public class Place implements Comparable<Place> {
 

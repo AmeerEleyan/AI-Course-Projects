@@ -3,7 +3,7 @@
  * ID: 1191076
  * At: 4/15/2022    1:11 AM
  */
-package AiProjectOne;
+package ai_project_one;
 
 public class Edge{
 

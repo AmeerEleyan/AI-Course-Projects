@@ -3,7 +3,7 @@
  * ID: 1191076
  * At: 4/14/2022    10:52 PM
  */
-package AiProjectOne;
+package ai_project_one;
 
 import java.util.LinkedList;
 

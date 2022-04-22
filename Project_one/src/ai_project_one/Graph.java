@@ -3,9 +3,7 @@
  * ID: 1191076
  * At: 4/15/2022   1:02 AM
  */
-package AiProjectOne;
-
-import javafx.util.Pair;
+package ai_project_one;
 
 import java.util.*;
 
@@ -36,28 +34,36 @@ public class Graph {
     }
 
     // new version from the shortest path
-    public ShortestPath findShortestPath_AStarAlgorithm(String sourcePlace, String destinationPlace) {
+    public ShortestPath findShortestPath_AStarAlgorithm(String sourcePlaceName, String destinationPlaceName) {
 
         // there is no adjacent fore source place. so there is no path from source place to destination place
-        if (this.hashMap.get(sourcePlace) == null) {
+        if (this.hashMap.get(sourcePlaceName) == null) {
             throw new RuntimeException("Source place does not exist");
-        } else if (this.hashMap.get(destinationPlace) == null) {
+        } else if (this.hashMap.get(destinationPlaceName) == null) {
             throw new RuntimeException("Destination place does not exist");
-        } else if (this.hashMap.get(sourcePlace).getAdjacent().size() == 0) {
+        } else if (this.hashMap.get(sourcePlaceName).getAdjacent().size() == 0) {
             throw new RuntimeException("Can not move from this place to another place");
         }
 
-        PriorityQueue<Distance> closedList = new PriorityQueue<>();
-        PriorityQueue<Distance> openList = new PriorityQueue<>();
+        // Contains the places that will be processed from the source to destination
+        Map<String, Distance> map = new HashMap<>();
+        map.put(sourcePlaceName, new Distance(sourcePlaceName));
+        map.put(destinationPlaceName, new Distance(destinationPlaceName));
 
-        Map<String, Pair<String, String>> path = new HashMap<>();
-        path.put(sourcePlace, null);
+        // Contains the places that were visited during the search for the destination
+        LinkedHashSet<Distance> visitedPlaces = new LinkedHashSet<>();
 
-        Distance start = new Distance(this.hashMap.get(sourcePlace).getPlace().getPlaceName());
-        Distance end = new Distance(this.hashMap.get(destinationPlace).getPlace().getPlaceName());
+        // Contains nodes that we've encountered, but haven't analyzed yet
+        PriorityQueue<Distance> heap = new PriorityQueue<>();
 
-        start.setF(start.getG() + calculateHeuristic(this.hashMap.get(sourcePlace).getPlace(), this.hashMap.get(destinationPlace).getPlace()));
-        openList.add(start);
+        Place destinationPlace = this.hashMap.get(destinationPlaceName).getPlace();
+
+        Distance start = map.get(sourcePlaceName);
+        start.setG(0);
+        start.setF(start.getG() + calculateHeuristic(this.hashMap.get(sourcePlaceName).getPlace(), destinationPlace));
+        heap.add(start);
+
+        Distance end = map.get(destinationPlaceName);
 
         float totalDistance;
         short spaceComplexity = 1, timeComplexity = 0;
@@ -65,67 +71,75 @@ public class Graph {
         Distance distance;
         Distance currentPlace = null;
 
-        while (!openList.isEmpty()) {
+        while (!heap.isEmpty()) {
 
-            currentPlace = openList.poll();
+            currentPlace = heap.poll();
 
             timeComplexity++;
             if (currentPlace.equals(end)) {
+                //The destination was found
                 break;
             }
-            for (Edge edge : this.hashMap.get(currentPlace.getPlaceName()).getAdjacent()) {
+            // Processing all adjacent places of the current palace
+            for (Edge adjacentPlace : this.hashMap.get(currentPlace.getPlaceName()).getAdjacent()) {
 
-                totalDistance = currentPlace.getG() + edge.getDistance();
-                edgeVertex = this.hashMap.get(edge.getAdjacentPlace().getPlaceName());
-                distance = new Distance(this.hashMap.get(edge.getAdjacentPlace().getPlaceName()).getPlace().getPlaceName());
+                totalDistance = currentPlace.getG() + adjacentPlace.getDistance();
+                edgeVertex = this.hashMap.get(adjacentPlace.getAdjacentPlace().getPlaceName());
+
+                // Check if an adjacent place exists on the map( was processed previously)
+                if (map.get(adjacentPlace.getAdjacentPlace().getPlaceName()) == null) {
+                    map.put(adjacentPlace.getAdjacentPlace().getPlaceName(), new Distance(adjacentPlace.getAdjacentPlace().getPlaceName()));
+                }
+
+                distance = map.get(adjacentPlace.getAdjacentPlace().getPlaceName());
 
                 timeComplexity++;
-                if (!openList.contains(distance) && !closedList.contains(distance)) {
+                if (!heap.contains(distance) && !visitedPlaces.contains(distance)) {
 
-                    path.put(edgeVertex.getPlace().getPlaceName(), new Pair<>(edgeVertex.getPlace().getPlaceName(), currentPlace.getPlaceName()));
+                    distance.setParentName(currentPlace.getPlaceName());
                     distance.setG(totalDistance);
-                    distance.setF(distance.getG() + calculateHeuristic(edgeVertex.getPlace(), this.hashMap.get(destinationPlace).getPlace()));
-                    openList.add(distance);
+                    distance.setF(distance.getG() + calculateHeuristic(edgeVertex.getPlace(), destinationPlace));
+                    heap.add(distance);
                 } else {
+
                     timeComplexity++;
                     if (totalDistance < distance.getG()) {
-
-                        path.put(edgeVertex.getPlace().getPlaceName(), new Pair<>(edgeVertex.getPlace().getPlaceName(), currentPlace.getPlaceName()));
+                        distance.setParentName(currentPlace.getPlaceName());
                         distance.setG(totalDistance);
-                        distance.setF(distance.getG() + calculateHeuristic(edgeVertex.getPlace(), this.hashMap.get(destinationPlace).getPlace()));
+                        distance.setF(distance.getG() + calculateHeuristic(edgeVertex.getPlace(), destinationPlace));
 
-                        timeComplexity++;
-                        if (closedList.contains(distance)) {
-                            closedList.remove(distance);
-                            openList.add(distance);
-                        }
                     }
                 }
             }
-            if (openList.size() + closedList.size() > spaceComplexity) {
-                spaceComplexity = (short) (openList.size() + closedList.size());
+            // To calculate space complexity as required in the project
+            if (heap.size() > spaceComplexity) {
+                spaceComplexity = (short) (heap.size());
             }
-            closedList.add(currentPlace);
+            // Current place was visited
+            visitedPlaces.add(currentPlace);
         }
 
-        if (path.get(destinationPlace) == null || path.get(destinationPlace).getValue() == null) {
+        // We could not reach the destination
+        if (map.get(destinationPlaceName) == null || map.get(destinationPlaceName).getParentName() == null) {
             throw new RuntimeException("There is no path to " + destinationPlace);
         }
 
-        LinkedList<Place> placesInThePath = getPlacesInThePath(path, destinationPlace);
-        placesInThePath.addFirst(this.hashMap.get(sourcePlace).getPlace());
+        // Get all places in the path from src to dest place
+        LinkedList<Place> placesInThePath = getPlacesInPath(map, destinationPlaceName);
+        placesInThePath.addFirst(this.hashMap.get(sourcePlaceName).getPlace());
 
+        assert currentPlace != null;
         return new ShortestPath(spaceComplexity, timeComplexity, currentPlace.getF(), placesInThePath);
 
     }
 
-    private LinkedList<Place> getPlacesInThePath(Map<String, Pair<String, String>> path, String destinationPlace) {
+    // Get all places in the path from src to dest place
+    private LinkedList<Place> getPlacesInPath(Map<String, Distance> map, String destinationPlace) {
         LinkedList<Place> listPath = new LinkedList<>();
-        String place = destinationPlace;
-        listPath.addFirst(this.hashMap.get(place).getPlace());
-        while (path.get(path.get(place).getValue()) != null) {
-            place = path.get(path.get(place).getValue()).getKey();
-            listPath.addFirst(this.hashMap.get(place).getPlace());
+        Distance distance = map.get(destinationPlace);
+        while (distance.getParentName() != null) {
+            listPath.addFirst(this.hashMap.get(distance.getPlaceName()).getPlace());
+            distance = map.get(distance.getParentName());
         }
         return listPath;
     }
