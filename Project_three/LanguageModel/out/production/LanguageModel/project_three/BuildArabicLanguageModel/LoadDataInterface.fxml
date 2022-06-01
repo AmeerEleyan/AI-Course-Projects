@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="project_three.BuildArabicLanguageModel.LoadDataInterfaceController">
+   <children>
+      <Button fx:id="btBrowse" layoutX="225.0" layoutY="113.0" mnemonicParsing="false" onAction="#handleBtBrowse" prefHeight="40.0" prefWidth="150.0" stylesheets="@../UseArabicLanguageModel/style.css" text="Browse Files" />
+      <Button fx:id="btBuildModel" layoutX="225.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleBtBuildModel" prefHeight="40.0" prefWidth="150.0" stylesheets="@../UseArabicLanguageModel/style.css" text="Build Model" />
+      <TextArea fx:id="text" layoutX="14.0" layoutY="40.0" prefHeight="200.0" prefWidth="200.0" />
+   </children>
+</AnchorPane>

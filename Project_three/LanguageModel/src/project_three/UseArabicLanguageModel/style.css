@@ -1,0 +1,27 @@
+/*
+    @author: Ameer Eleyan
+    ID: 1191076
+*/
+.button
+{
+    -fx-background-color: #ffffff;
+    -fx-border-color: #FF4C29;
+    -fx-border-width: 2;
+    -fx-text-fill: #000000;
+    -fx-font-size: 16;
+    -fx-font-weight: Bold;
+    -fx-border-radius: 50px;
+    -fx-background-radius: 50px;
+}
+
+.button:hover
+{
+    -fx-background-color: #FF4C29;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 2;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16;
+    -fx-font-weight: Bold;
+    -fx-border-radius: 50px;
+    -fx-background-radius: 50px;
+}
