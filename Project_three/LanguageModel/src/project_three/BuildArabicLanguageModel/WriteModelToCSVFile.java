@@ -13,11 +13,11 @@ import java.util.HashMap;
 
 public class WriteModelToCSVFile {
 
-    public WriteModelToCSVFile(HashMap<String, Corpus> model) {
+    public WriteModelToCSVFile(HashMap<String, CorpusRecord> model) {
         this.writeModelToCSVFile(model);
     }
 
-    private void writeModelToCSVFile(HashMap<String, Corpus> model) {
+    private void writeModelToCSVFile(HashMap<String, CorpusRecord> model) {
 
         try (PrintWriter writer = new PrintWriter("/project_three/UseArabicLanguageModel/Model.csv")) {
 

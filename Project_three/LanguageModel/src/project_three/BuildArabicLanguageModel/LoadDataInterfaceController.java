@@ -55,7 +55,7 @@ public class LoadDataInterfaceController implements Initializable {
     @FXML
     void handleBtBuildModel() {
         BuildModel model = new BuildModel(this.fileList);
-        HashMap<String, Corpus> arabicModel = model.constructModel();
+        HashMap<String, CorpusRecord> arabicModel = model.constructModel();
         WriteModelToCSVFile writeModelToCSVFile = new WriteModelToCSVFile(arabicModel);
     }
 

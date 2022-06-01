@@ -5,5 +5,5 @@
  */
 package project_three.BuildArabicLanguageModel;
 
-public record Corpus(byte gram, int frequency, float probability) {
+public record CorpusRecord(byte gram, int frequency, float probability) {
 }

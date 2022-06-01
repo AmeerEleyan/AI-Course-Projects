@@ -38,23 +38,23 @@ public class BuildModel {
         return sb;
     }
 
-    private StringBuilder qualityChecker(StringBuilder data) {
-        return null;
-    }
 
-    public HashMap<String, Corpus> constructModel() {
+    public HashMap<String, CorpusRecord> constructModel() {
         ArrayList<StringBuilder> builderArrayList = new ArrayList<>();
         StringBuilder dataAfterQualityChecker;
-
+        String dataAsString;
+        ArabicNormalizer arabicNormalizer;
         for (File file : this.fileList) {
-            dataAfterQualityChecker = this.qualityChecker(this.readFile(file));
+            dataAsString = this.readFile(file).toString();
+            arabicNormalizer = new ArabicNormalizer(dataAsString);
+            dataAfterQualityChecker = new StringBuilder(arabicNormalizer.getOutput());
             builderArrayList.add(dataAfterQualityChecker);
         }
 
         return this.buildModel(builderArrayList);
     }
-    
-    private HashMap<String, Corpus> buildModel(ArrayList<StringBuilder> builderArrayList) {
+
+    private HashMap<String, CorpusRecord> buildModel(ArrayList<StringBuilder> builderArrayList) {
         return null;
     }
 
