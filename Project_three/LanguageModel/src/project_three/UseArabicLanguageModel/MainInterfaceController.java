@@ -16,8 +16,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class MainInterfaceController implements Initializable {
     @FXML
@@ -25,12 +27,12 @@ public class MainInterfaceController implements Initializable {
     @FXML
     private Label label;
 
-    private HashMap<String, CorpusRecord> hashMap;
+    private HashMap<String, CorpusRecord> model;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.hashMap = new HashMap<>();
-        this.readCitiesRecordFromFile();
+        this.model = new HashMap<>();
+        this.uploadModel();
     }
 
     @FXML
@@ -54,13 +56,18 @@ public class MainInterfaceController implements Initializable {
     }
 
     private String getResult() {
+
+        Map<String, CorpusRecord> result = this.model.entrySet()
+                .stream()
+                .filter(map -> map.getKey().contains(" هي "))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return null;
     }
 
     /**
      * Methode to read data from file iteratively
      */
-    private void readCitiesRecordFromFile() {
+    private void uploadModel() {
         File dataset = new File("/project_three/UseArabicLanguageModel/Model.csv");
         try {
             Scanner input = new Scanner(dataset); // instance of scanner for read data from file
@@ -86,7 +93,7 @@ public class MainInterfaceController implements Initializable {
                         corpusRecord = new CorpusRecord(frequency, probability);
 
                         // add this recorde to the hash
-                        this.hashMap.put(key, corpusRecord);
+                        this.model.put(key, corpusRecord);
 
                     } catch (Exception ex) {
                         // the record in the file has a problem

@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 public class BuildModel implements Runnable {
 
+    private HashMap<String, CorpusRecord> model;
     private final List<File> fileList;
 
     public BuildModel(List<File> fileList) {
@@ -30,7 +32,7 @@ public class BuildModel implements Runnable {
             Reader reader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8); // leave charset out for default
             BufferedReader bufferedReader = new BufferedReader(reader);
             while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line);
+                sb.append(line).append(" ");
             }
         } catch (Exception e) {
             Message.displayMessage("Warning", e.getMessage());
@@ -38,11 +40,13 @@ public class BuildModel implements Runnable {
         return sb;
     }
 
-    public HashMap<String, CorpusRecord> constructModel() {
+    private ArrayList<StringBuilder> dataToBuilderArrayList() {
+
         ArrayList<StringBuilder> builderArrayList = new ArrayList<>();
         StringBuilder dataAfterQualityChecker;
         String dataAsString;
         ArabicNormalizer arabicNormalizer;
+
         for (File file : this.fileList) {
             dataAsString = this.readFile(file).toString();
             arabicNormalizer = new ArabicNormalizer(dataAsString);
@@ -50,45 +54,81 @@ public class BuildModel implements Runnable {
             builderArrayList.add(dataAfterQualityChecker);
         }
 
-        return this.buildModel(builderArrayList);
+        return builderArrayList;
     }
 
-    private HashMap<String, CorpusRecord> buildModel(ArrayList<StringBuilder> builderArrayList) {
-        HashMap<String, CorpusRecord> model = new HashMap<>();
+    private void buildModel(ArrayList<StringBuilder> builderArrayList) {
+
+        this.model = new HashMap<>();
+
         for (StringBuilder sb : builderArrayList) {
             for (int n = 1; n <= 3; n++) {
-                for (String ngram : ngrams(n, sb.toString())){
-                    if(ngram.length()<=1)continue;
-                    if (model.get(ngram) == null) {
-                        model.put(ngram, new CorpusRecord());
+                for (String ngram : ngrams(sb.toString(), n)) {
+                    if (ngram.length() <= 1) continue;
+                    if (this.model.get(ngram) == null) {
+                        this.model.put(ngram.trim(), new CorpusRecord());
                     } else {
-                        CorpusRecord corpusRecord = model.get(ngram);
+                        CorpusRecord corpusRecord = this.model.get(ngram);
                         corpusRecord.setFrequency(corpusRecord.getFrequency() + 1);
                     }
                 }
             }
         }
-        return model;
+
     }
 
-    public static List<String> ngrams(int n, String str) {
-        List<String> ngrams = new ArrayList<>();
-        String[] words = str.split(" ");
-        for (int i = 0; i < words.length - n + 1; i++)
-            ngrams.add(concat(words, i, i + n));
-        return ngrams;
+    private String[] ngrams(String s, int len) {
+        String[] parts = s.split(" ");
+        String[] result = new String[parts.length - len + 1];
+        for (int i = 0; i < parts.length - len + 1; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int k = 0; k < len; k++) {
+                if (parts[i + k].length() <= 1) continue;
+                if (k > 0) sb.append(" ");
+                sb.append(parts[i + k]);
+            }
+            result[i] = sb.toString();
+        }
+        return result;
     }
 
-    public static String concat(String[] words, int start, int end) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = start; i < end; i++)
-            sb.append(i > start ? " " : "").append(words[i]);
-        return sb.toString();
+    private void assignProbabilitiesForTheModel() {
+        // using for-each loop for iteration over Map.entrySet()
+        this.model.forEach((k, v) -> {
+            String[] splitter = k.split(" ");
+            if (splitter.length == 1) v.setProbability(1);
+            else {
+                v.setProbability(this.calculateProbability(splitter));
+            }
+        });
+
+    }
+
+    private float calculateProbability(String[] splitter) {
+        int numerator = 0, denominator = 0;
+        try {
+            if (splitter.length == 2) {
+                numerator = this.model.get(splitter[0] + " " + splitter[1]).getFrequency();
+                denominator = this.model.get(splitter[0]).getFrequency();
+                return (float) numerator / denominator;
+            } else { // length -> 3
+                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
+                String den = splitter[0] + " " + splitter[1];
+                numerator = this.model.get(num).getFrequency();
+                denominator = this.model.get(den).getFrequency();
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return (float) numerator / denominator;
     }
 
     @Override
     public void run() {
-        HashMap<String, CorpusRecord> arabicModel = this.constructModel();
-        WriteModelToCSVFile writeModelToCSVFile = new WriteModelToCSVFile(arabicModel);
+        this.buildModel(this.dataToBuilderArrayList());
+        this.assignProbabilitiesForTheModel();
+        WriteModelToCSVFile writeModelToCSVFile = new WriteModelToCSVFile();
+        writeModelToCSVFile.writeModelToCSVFile(this.model);
     }
 }

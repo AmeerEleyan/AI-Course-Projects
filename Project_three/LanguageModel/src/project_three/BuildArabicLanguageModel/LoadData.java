@@ -12,29 +12,28 @@ import javafx.stage.Window;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class LoadData {
 
     public static void main(String[] args) throws IOException {
-//        //I will read chars using utf-8 encoding
-//        BufferedReader in = new BufferedReader(new InputStreamReader(
-//                new FileInputStream("C:\\MyData\\3ed-Year\\SecondSemester2022\\AI\\Projects\\Project_three\\LanguageModel\\src\\project_three\\BuildArabicLanguageModel\\test.txt"), StandardCharsets.UTF_8));
-//
-//        // ok, lets read data from file
-//        String line;
-//        while((line =in.readLine())!=null)
-//
-//        {
-//            // here I use IDE encoding
-//            System.out.println(line);
-//        }
-        FileChooser file = new FileChooser();
-        List<File> files = file.showOpenMultipleDialog(new Stage().getScene().getWindow());
-        List<File> files2= file.showOpenMultipleDialog(new Stage().getScene().getWindow());;
-        files.addAll(files2);
-        //readBabyRecordFromFile();
+        Map<String, String> hmap = new HashMap<String, String>();
+        hmap.put("xy z", "Apple");
+        hmap.put("fd", "Orange");
+        hmap.put("g xy", "Kiwi");
+        hmap.put("xxy", "Banana");
+
+        Map<String, String> result = hmap.entrySet()
+                .stream()
+                .filter(map -> map.getKey().toString().contains("xy"))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+
+        System.out.println("Result: " +  result.keySet());
     }
     private static void readBabyRecordFromFile() {
 

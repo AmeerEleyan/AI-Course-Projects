@@ -12,11 +12,7 @@ import java.util.HashMap;
 
 public class WriteModelToCSVFile {
 
-    public WriteModelToCSVFile(HashMap<String, CorpusRecord> model) {
-        this.writeModelToCSVFile(model);
-    }
-
-    private void writeModelToCSVFile(HashMap<String, CorpusRecord> model) {
+    public void writeModelToCSVFile(HashMap<String, CorpusRecord> model) {
         File file;
         PrintWriter writer;
         try {
