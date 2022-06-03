@@ -15,7 +15,7 @@ public class ArabicNormalizer {
      * @param input String
      */
     public ArabicNormalizer(String input) {
-        input = input.replaceAll("[a-zA-Z\\d`~!@#$%^&*()_|+\\-=?;:'\"\n,.\\[\\]<>{}]", "");
+        input = input.replaceAll("[a-zA-Z\\d`~!@#$%^&*()/_|+\\-=?;:'\"\n,.\\[\\]<>{}]", "");
         this.input = input;
         this.output = normalize();
     }

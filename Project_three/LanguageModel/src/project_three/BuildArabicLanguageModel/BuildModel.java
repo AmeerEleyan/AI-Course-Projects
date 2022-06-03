@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class BuildModel {
+public class BuildModel implements Runnable {
 
     private final List<File> fileList;
 
@@ -38,7 +38,6 @@ public class BuildModel {
         return sb;
     }
 
-
     public HashMap<String, CorpusRecord> constructModel() {
         ArrayList<StringBuilder> builderArrayList = new ArrayList<>();
         StringBuilder dataAfterQualityChecker;
@@ -55,7 +54,41 @@ public class BuildModel {
     }
 
     private HashMap<String, CorpusRecord> buildModel(ArrayList<StringBuilder> builderArrayList) {
-        return null;
+        HashMap<String, CorpusRecord> model = new HashMap<>();
+        for (StringBuilder sb : builderArrayList) {
+            for (int n = 1; n <= 3; n++) {
+                for (String ngram : ngrams(n, sb.toString())){
+                    if(ngram.length()<=1)continue;
+                    if (model.get(ngram) == null) {
+                        model.put(ngram, new CorpusRecord());
+                    } else {
+                        CorpusRecord corpusRecord = model.get(ngram);
+                        corpusRecord.setFrequency(corpusRecord.getFrequency() + 1);
+                    }
+                }
+            }
+        }
+        return model;
     }
 
+    public static List<String> ngrams(int n, String str) {
+        List<String> ngrams = new ArrayList<>();
+        String[] words = str.split(" ");
+        for (int i = 0; i < words.length - n + 1; i++)
+            ngrams.add(concat(words, i, i + n));
+        return ngrams;
+    }
+
+    public static String concat(String[] words, int start, int end) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < end; i++)
+            sb.append(i > start ? " " : "").append(words[i]);
+        return sb.toString();
+    }
+
+    @Override
+    public void run() {
+        HashMap<String, CorpusRecord> arabicModel = this.constructModel();
+        WriteModelToCSVFile writeModelToCSVFile = new WriteModelToCSVFile(arabicModel);
+    }
 }

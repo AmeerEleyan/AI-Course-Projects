@@ -5,8 +5,7 @@
  */
 package project_three.BuildArabicLanguageModel;
 
-import project_three.UseArabicLanguageModel.Message;
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -18,25 +17,17 @@ public class WriteModelToCSVFile {
     }
 
     private void writeModelToCSVFile(HashMap<String, CorpusRecord> model) {
+        File file;
+        PrintWriter writer;
+        try {
+            file = new File("C:\\MyData\\3ed-Year\\SecondSemester2022\\AI\\Projects\\Project_three\\LanguageModel\\src\\project_three\\UseArabicLanguageModel\\Model.csv");
+            writer = new PrintWriter(file);
 
-        try (PrintWriter writer = new PrintWriter("/project_three/UseArabicLanguageModel/Model.csv")) {
-
-            StringBuilder sb = new StringBuilder();
-
-            model.forEach((k, v) -> {
-                sb.append(k);
-                sb.append(',');
-                sb.append(v.gram());
-                sb.append(',');
-                sb.append(v.frequency());
-                sb.append(',');
-                sb.append(v.probability());
-                sb.append('\n');
-            });
-            writer.write(sb.toString());
-            Message.displayMessage("Successfully", "Model was build successfully");
+            model.forEach((k, v) -> writer.println(k + ", " + v.getFrequency() + ", " + v.getProbability()));
+            writer.close();
         } catch (FileNotFoundException e) {
-            Message.displayMessage("Warning", e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
+
 }

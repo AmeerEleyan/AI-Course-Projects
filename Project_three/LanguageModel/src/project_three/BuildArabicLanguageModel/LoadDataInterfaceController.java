@@ -8,12 +8,12 @@ package project_three.BuildArabicLanguageModel;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -26,9 +26,13 @@ public class LoadDataInterfaceController implements Initializable {
 
     private List<File> fileList;
 
+    @FXML
+    private Label lblMessage;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.fileList = new ArrayList<>();
+        this.btBuildModel.setVisible(false);
     }
 
     @FXML
@@ -40,7 +44,7 @@ public class LoadDataInterfaceController implements Initializable {
 
     // upload files using a browser
     public void uploadFiles() {
-
+        this.btBuildModel.setVisible(false);
         // File Chooser
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Files", "*.txt");
@@ -50,13 +54,16 @@ public class LoadDataInterfaceController implements Initializable {
         if (fileList != null) {
             this.fileList.addAll(fileList);
         }
+        this.btBrowse.setText("Add new files");
+        this.btBuildModel.setVisible(true);
     }
 
     @FXML
     void handleBtBuildModel() {
         BuildModel model = new BuildModel(this.fileList);
-        HashMap<String, CorpusRecord> arabicModel = model.constructModel();
-        WriteModelToCSVFile writeModelToCSVFile = new WriteModelToCSVFile(arabicModel);
+        Thread thread = new Thread(model);
+        thread.start();
+        this.lblMessage.setVisible(true);
     }
 
 }

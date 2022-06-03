@@ -72,7 +72,6 @@ public class MainInterfaceController implements Initializable {
                 String[] data;
                 CorpusRecord corpusRecord;
                 String key;
-                byte gram;
                 int frequency;
                 float probability;
                 while (input.hasNext()) { // read line of data
@@ -82,10 +81,9 @@ public class MainInterfaceController implements Initializable {
                         // get data record
                         data = lineOfData.split(",");
                         key = data[0].trim();
-                        gram = Byte.parseByte(data[1].trim());
-                        frequency = Integer.parseInt(data[2].trim());
-                        probability = Float.parseFloat(data[3].trim());
-                        corpusRecord = new CorpusRecord(gram, frequency, probability);
+                        frequency = Integer.parseInt(data[1].trim());
+                        probability = Float.parseFloat(data[2].trim());
+                        corpusRecord = new CorpusRecord(frequency, probability);
 
                         // add this recorde to the hash
                         this.hashMap.put(key, corpusRecord);

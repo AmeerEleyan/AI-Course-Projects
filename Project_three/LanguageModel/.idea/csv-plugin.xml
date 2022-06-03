@@ -3,7 +3,7 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\test.csv">
+        <entry key="\src\project_three\UseArabicLanguageModel\Model.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
