@@ -19,6 +19,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.Float.NaN;
+
 public class MainInterfaceController implements Initializable {
     @FXML
     private TextField txt;
@@ -31,26 +33,51 @@ public class MainInterfaceController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.model = new HashMap<>();
         this.uploadModel();
-        this.filterKeys("حيث");
     }
 
     @FXML
     void getSelectedText() {
 
-        String selectedText = txt.getSelectedText();
+        if (txt.getText().length() < 1) return;
+        String selectedText = txt.getSelectedText().trim();
         selectedText = new ArabicNormalizer(selectedText).getOutput();
 
         String input = txt.getText();
         input = new ArabicNormalizer(input).getOutput();
 
-        this.displayCandidateWords(this.getCandidateWords(input, selectedText));
+        String[] splitter = input.split(" ");
+        int indexOfSelectedWord = this.searchForTheWordInArray(splitter, selectedText);
+        if (indexOfSelectedWord == -1) return;
+        if (indexOfSelectedWord > 5) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = indexOfSelectedWord - 6 + 1; j < indexOfSelectedWord + 1; j++) {
+                if (j > indexOfSelectedWord - 6 + 1) {
+                    sb.append(" ");
+                }
+                sb.append(splitter[j]);
+            }
+            input = sb.toString();
+        }
+        String previousWord = splitter[indexOfSelectedWord - 1];
+        ArrayList<CandidateWords> candidateWords = this.getCandidateWords(input, selectedText, previousWord);
+        this.displayCandidateWords(candidateWords);
     }
 
     private void displayCandidateWords(ArrayList<CandidateWords> candidateWords) {
-        sortCandidateWords(candidateWords);
+        candidateWords.sort(new Comparator<CandidateWords>() {
+            public int compare(CandidateWords c1, CandidateWords c2) {
+                return Float.compare(c1.probability, c2.probability);
+            }
+        });
+        //candidateWords.sort((CandidateWords c1, CandidateWords c2) -> Float.compare(c1.probability, c2.probability));
         StringBuilder sb = new StringBuilder();
-        for (CandidateWords candidateWord : candidateWords) {
-            sb.append(candidateWord.probability).append(" ").append(candidateWord.candidateWord).append("\n");
+        int i = candidateWords.size() - 1;
+        int count = 0;
+        while (count < 10 && i>=0) {
+            if (candidateWords.get(i) == null) break;
+            sb.append(candidateWords.get(i).probability).append(" ").append(candidateWords.get(i).candidateWord).append("\n");
+            ++count;
+            --i;
         }
         this.label.setText(String.valueOf(sb));
     }
@@ -61,25 +88,63 @@ public class MainInterfaceController implements Initializable {
     }
 
     private record CandidateWords(String candidateWord, float probability) {
+        @Override
+        public boolean equals(Object obj) {
+            return candidateWord.equals(((CandidateWords) obj).candidateWord);
+        }
     }
 
     /**
      * show the top candidate words that can be used to replace this word
      */
-    private ArrayList<CandidateWords> getCandidateWords(String inputText, String selectedWord) {
-        ArrayList<String> allWordsAfterPreviousOfSelectedWord = getAllWordsAfterPreviousOfSelectedWord(selectedWord);
+    private ArrayList<CandidateWords> getCandidateWords(String inputText, String selectedWord, String previousWord) {
+        ArrayList<String> allWordsAfterPreviousOfSelectedWord = getAllWordsAfterPreviousOfSelectedWord(previousWord);
         ArrayList<CandidateWords> finalResults = new ArrayList<>();
         for (String suggestionWord : allWordsAfterPreviousOfSelectedWord) {
             ArrayList<String> enteredTextAfterSplitting = new ArrayList<>();
-            for (int n = 1; n <= 3; n++) {
+            for (int n = 2; n <= 3; n++) {
                 enteredTextAfterSplitting.addAll(Arrays.asList(Utility.ngrams(inputText, n)));
             }
             replaceInputTextWithCandidateWord(enteredTextAfterSplitting, selectedWord, suggestionWord);
             //calculate probability
+
+            float probability = 1;
+            for (String s : enteredTextAfterSplitting) {
+                float x = this.calculateProbability(s);
+                if (!Float.isNaN(x))
+                    probability *= x;
+            }
+            if (!finalResults.contains(new CandidateWords(suggestionWord, 0)))
+                finalResults.add(new CandidateWords(suggestionWord, probability));
         }
 
+        return finalResults;
+    }
 
-        return null;
+    public float calculateProbability(String word) {
+        int numerator = 0, denominator = 0;
+        String[] splitter = word.split(" ");
+        try {
+            if (splitter.length == 2) {
+                if (this.model.get(splitter[0] + " " + splitter[1]) != null && this.model.get(splitter[0]) != null) {
+                    numerator = this.model.get(splitter[0] + " " + splitter[1]).getFrequency();
+                    denominator = this.model.get(splitter[0]).getFrequency();
+                }
+                return (float) numerator / denominator;
+            } else { // length -> 3
+
+                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
+                String den = splitter[0] + " " + splitter[1];
+                if (this.model.get(num) != null && this.model.get(den) != null) {
+                    numerator = this.model.get(num).getFrequency();
+                    denominator = this.model.get(den).getFrequency();
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return (float) numerator / denominator;
     }
 
     private void replaceInputTextWithCandidateWord(ArrayList<String> enteredTextAfterSplitting, String selectedWord, String suggestionWord) {
@@ -109,7 +174,8 @@ public class MainInterfaceController implements Initializable {
             //to get the next word pf the previous word
             int indexOfNextWord = this.searchForTheWordInArray(splitter, selectedWord) + 1;
             if (indexOfNextWord < splitter.length) {
-                nextWords.add(splitter[indexOfNextWord]);
+                if (!nextWords.contains(splitter[indexOfNextWord]))
+                    nextWords.add(splitter[indexOfNextWord]);
             }
         });
         return nextWords;
@@ -119,7 +185,7 @@ public class MainInterfaceController implements Initializable {
 
         return this.model.entrySet()
                 .stream()
-                .filter(map -> map.getKey().contains(word))
+                .filter(map -> map.getKey().contains(" " + word + " "))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
