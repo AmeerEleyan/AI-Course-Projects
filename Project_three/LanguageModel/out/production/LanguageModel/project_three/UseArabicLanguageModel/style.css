@@ -17,7 +17,7 @@
 .button:hover
 {
     -fx-background-color: #FF4C29;
-    -fx-border-color: #ffffff;
+    -fx-border-color: #000000;
     -fx-border-width: 2;
     -fx-text-fill: #ffffff;
     -fx-font-size: 16;

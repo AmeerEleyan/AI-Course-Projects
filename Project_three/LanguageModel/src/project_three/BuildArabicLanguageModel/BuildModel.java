@@ -63,7 +63,7 @@ public class BuildModel implements Runnable {
 
         for (StringBuilder sb : builderArrayList) {
             for (int n = 1; n <= 3; n++) {
-                for (String ngram : ngrams(sb.toString(), n)) {
+                for (String ngram : Utility.ngrams(sb.toString(), n)) {
                     if (ngram.length() <= 1) continue;
                     if (this.model.get(ngram) == null) {
                         this.model.put(ngram.trim(), new CorpusRecord());
@@ -77,51 +77,16 @@ public class BuildModel implements Runnable {
 
     }
 
-    private String[] ngrams(String s, int len) {
-        String[] parts = s.split(" ");
-        String[] result = new String[parts.length - len + 1];
-        for (int i = 0; i < parts.length - len + 1; i++) {
-            StringBuilder sb = new StringBuilder();
-            for (int k = 0; k < len; k++) {
-                if (parts[i + k].length() <= 1) continue;
-                if (k > 0) sb.append(" ");
-                sb.append(parts[i + k]);
-            }
-            result[i] = sb.toString();
-        }
-        return result;
-    }
-
     private void assignProbabilitiesForTheModel() {
         // using for-each loop for iteration over Map.entrySet()
         this.model.forEach((k, v) -> {
             String[] splitter = k.split(" ");
             if (splitter.length == 1) v.setProbability(1);
             else {
-                v.setProbability(this.calculateProbability(splitter));
+                v.setProbability(Utility.calculateProbability(splitter, this.model));
             }
         });
 
-    }
-
-    private float calculateProbability(String[] splitter) {
-        int numerator = 0, denominator = 0;
-        try {
-            if (splitter.length == 2) {
-                numerator = this.model.get(splitter[0] + " " + splitter[1]).getFrequency();
-                denominator = this.model.get(splitter[0]).getFrequency();
-                return (float) numerator / denominator;
-            } else { // length -> 3
-                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
-                String den = splitter[0] + " " + splitter[1];
-                numerator = this.model.get(num).getFrequency();
-                denominator = this.model.get(den).getFrequency();
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return (float) numerator / denominator;
     }
 
     @Override
