@@ -19,8 +19,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.Float.NaN;
-
 public class MainInterfaceController implements Initializable {
     @FXML
     private TextField txt;
@@ -47,6 +45,10 @@ public class MainInterfaceController implements Initializable {
 
         String[] splitter = input.split(" ");
         int indexOfSelectedWord = this.searchForTheWordInArray(splitter, selectedText);
+        if (splitter.length == 1 || indexOfSelectedWord == 0) {
+            Message.displayMessage("Warning", "المدخل غير كافي لاظهار كلمات مقترحة");
+            return;
+        }
         if (indexOfSelectedWord == -1) return;
         if (indexOfSelectedWord > 5) {
             StringBuilder sb = new StringBuilder();
@@ -64,27 +66,18 @@ public class MainInterfaceController implements Initializable {
     }
 
     private void displayCandidateWords(ArrayList<CandidateWords> candidateWords) {
-        candidateWords.sort(new Comparator<CandidateWords>() {
-            public int compare(CandidateWords c1, CandidateWords c2) {
-                return Float.compare(c1.probability, c2.probability);
-            }
-        });
-        //candidateWords.sort((CandidateWords c1, CandidateWords c2) -> Float.compare(c1.probability, c2.probability));
-        StringBuilder sb = new StringBuilder();
+        // Sort the list depending on the probability field value
+        candidateWords.sort((c1, c2) -> Float.compare(c1.probability, c2.probability));
+        String sb = "";
         int i = candidateWords.size() - 1;
         int count = 0;
-        while (count < 10 && i>=0) {
+        while (count < 10 && i >= 0) {
             if (candidateWords.get(i) == null) break;
-            sb.append(candidateWords.get(i).probability).append(" ").append(candidateWords.get(i).candidateWord).append("\n");
+            sb += String.format("%.6f", candidateWords.get(i).probability) + " " + candidateWords.get(i).candidateWord + "\n";
             ++count;
             --i;
         }
-        this.label.setText(String.valueOf(sb));
-    }
-
-    // Sort the list depending on the probability field value
-    private void sortCandidateWords(ArrayList<CandidateWords> candidateWords) {
-        candidateWords.sort((CandidateWords c1, CandidateWords c2) -> Float.compare(c1.probability, c2.probability));
+        this.label.setText(sb);
     }
 
     private record CandidateWords(String candidateWord, float probability) {
@@ -101,50 +94,41 @@ public class MainInterfaceController implements Initializable {
         ArrayList<String> allWordsAfterPreviousOfSelectedWord = getAllWordsAfterPreviousOfSelectedWord(previousWord);
         ArrayList<CandidateWords> finalResults = new ArrayList<>();
         for (String suggestionWord : allWordsAfterPreviousOfSelectedWord) {
+
             ArrayList<String> enteredTextAfterSplitting = new ArrayList<>();
             for (int n = 2; n <= 3; n++) {
                 enteredTextAfterSplitting.addAll(Arrays.asList(Utility.ngrams(inputText, n)));
             }
             replaceInputTextWithCandidateWord(enteredTextAfterSplitting, selectedWord, suggestionWord);
-            //calculate probability
 
-            float probability = 1;
-            for (String s : enteredTextAfterSplitting) {
-                float x = this.calculateProbability(s);
-                if (!Float.isNaN(x))
-                    probability *= x;
-            }
+            //calculate probability
             if (!finalResults.contains(new CandidateWords(suggestionWord, 0)))
-                finalResults.add(new CandidateWords(suggestionWord, probability));
+                finalResults.add(new CandidateWords(suggestionWord, this.calculateProbability(enteredTextAfterSplitting)));
         }
 
         return finalResults;
     }
 
-    public float calculateProbability(String word) {
-        int numerator = 0, denominator = 0;
-        String[] splitter = word.split(" ");
-        try {
-            if (splitter.length == 2) {
-                if (this.model.get(splitter[0] + " " + splitter[1]) != null && this.model.get(splitter[0]) != null) {
-                    numerator = this.model.get(splitter[0] + " " + splitter[1]).getFrequency();
-                    denominator = this.model.get(splitter[0]).getFrequency();
+    public float calculateProbability(ArrayList<String> enteredTextAfterSplitting) {
+        float probability = 1.000f;
+        for (String token : enteredTextAfterSplitting) {
+            String[] splitter = token.split(" ");
+            try {
+                if (splitter.length == 2) {
+                    if (this.model.get(splitter[0] + " " + splitter[1]) != null) {
+                        probability *= this.model.get(splitter[0] + " " + splitter[1]).getProbability();
+                    }
+                } else { // length -> 3
+                    String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
+                    if (this.model.get(num) != null) {
+                        probability *= this.model.get(num).getProbability();
+                    }
                 }
-                return (float) numerator / denominator;
-            } else { // length -> 3
-
-                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
-                String den = splitter[0] + " " + splitter[1];
-                if (this.model.get(num) != null && this.model.get(den) != null) {
-                    numerator = this.model.get(num).getFrequency();
-                    denominator = this.model.get(den).getFrequency();
-                }
+            } catch (NullPointerException e) {
+                System.out.println(e.getMessage());
             }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
         }
-
-        return (float) numerator / denominator;
+        return probability;
     }
 
     private void replaceInputTextWithCandidateWord(ArrayList<String> enteredTextAfterSplitting, String selectedWord, String suggestionWord) {

@@ -5,8 +5,6 @@
  */
 package project_three.BuildArabicLanguageModel;
 
-import java.util.HashMap;
-
 public class Utility {
     public static String[] ngrams(String s, int len) {
         String[] parts = s.split(" ");
@@ -23,23 +21,4 @@ public class Utility {
         return result;
     }
 
-    public static float calculateProbability(String[] splitter, HashMap<String, CorpusRecord> model) {
-        int numerator = 0, denominator = 0;
-        try {
-            if (splitter.length == 2) {
-                numerator = model.get(splitter[0] + " " + splitter[1]).getFrequency();
-                denominator = model.get(splitter[0]).getFrequency();
-                return (float) numerator / denominator;
-            } else { // length -> 3
-                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
-                String den = splitter[0] + " " + splitter[1];
-                numerator = model.get(num).getFrequency();
-                denominator = model.get(den).getFrequency();
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return (float) numerator / denominator;
-    }
 }

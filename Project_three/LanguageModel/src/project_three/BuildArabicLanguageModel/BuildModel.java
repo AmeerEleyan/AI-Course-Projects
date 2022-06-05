@@ -83,10 +83,30 @@ public class BuildModel implements Runnable {
             String[] splitter = k.split(" ");
             if (splitter.length == 1) v.setProbability(1);
             else {
-                v.setProbability(Utility.calculateProbability(splitter, this.model));
+                v.setProbability(this.calculateProbability(splitter));
             }
         });
 
+    }
+
+    private float calculateProbability(String[] splitter) {
+        int numerator = 0, denominator = 0;
+        try {
+            if (splitter.length == 2) {
+                numerator = this.model.get(splitter[0] + " " + splitter[1]).getFrequency();
+                denominator = this.model.get(splitter[0]).getFrequency();
+                return (float) numerator / denominator;
+            } else { // length -> 3
+                String num = splitter[0] + " " + splitter[1] + " " + splitter[2];
+                String den = splitter[0] + " " + splitter[1];
+                numerator = this.model.get(num).getFrequency();
+                denominator = this.model.get(den).getFrequency();
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return (float) numerator / denominator;
     }
 
     @Override
