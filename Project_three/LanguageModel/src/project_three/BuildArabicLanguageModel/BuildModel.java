@@ -63,7 +63,9 @@ public class BuildModel implements Runnable {
 
         for (StringBuilder sb : builderArrayList) {
             for (int n = 1; n <= 3; n++) {
-                for (String ngram : Utility.ngrams(sb.toString(), n)) {
+                String[] ngrams = Utility.ngrams(sb.toString(), n);
+                if (ngrams == null) continue;
+                for (String ngram : ngrams) {
                     if (ngram.length() <= 1) continue;
                     if (this.model.get(ngram) == null) {
                         this.model.put(ngram.trim(), new CorpusRecord());

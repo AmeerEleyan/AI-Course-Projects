@@ -60,10 +60,12 @@ public class LoadDataInterfaceController implements Initializable {
 
     @FXML
     void handleBtBuildModel() {
+        this.lblMessage.setVisible(true);
+        this.lblMessage.setText("انتظر...");
         BuildModel model = new BuildModel(this.fileList);
         Thread thread = new Thread(model);
         thread.start();
-        this.lblMessage.setVisible(true);
-    }
+        this.lblMessage.setText("تم بناء النموذج بنجاح😎");
 
+    }
 }

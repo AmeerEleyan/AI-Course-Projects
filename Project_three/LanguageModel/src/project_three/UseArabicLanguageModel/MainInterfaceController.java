@@ -68,16 +68,16 @@ public class MainInterfaceController implements Initializable {
     private void displayCandidateWords(ArrayList<CandidateWords> candidateWords) {
         // Sort the list depending on the probability field value
         candidateWords.sort((c1, c2) -> Float.compare(c1.probability, c2.probability));
-        String sb = "";
+        StringBuilder sb = new StringBuilder();
         int i = candidateWords.size() - 1;
         int count = 0;
         while (count < 10 && i >= 0) {
             if (candidateWords.get(i) == null) break;
-            sb += String.format("%.6f", candidateWords.get(i).probability) + " " + candidateWords.get(i).candidateWord + "\n";
+            sb.append(String.format("%.6f", candidateWords.get(i).probability)).append(" ").append(candidateWords.get(i).candidateWord).append("\n");
             ++count;
             --i;
         }
-        this.label.setText(sb);
+        this.label.setText(sb.toString());
     }
 
     private record CandidateWords(String candidateWord, float probability) {
@@ -97,7 +97,7 @@ public class MainInterfaceController implements Initializable {
 
             ArrayList<String> enteredTextAfterSplitting = new ArrayList<>();
             for (int n = 2; n <= 3; n++) {
-                enteredTextAfterSplitting.addAll(Arrays.asList(Utility.ngrams(inputText, n)));
+                enteredTextAfterSplitting.addAll(Arrays.asList(Objects.requireNonNull(Utility.ngrams(inputText, n))));
             }
             replaceInputTextWithCandidateWord(enteredTextAfterSplitting, selectedWord, suggestionWord);
 

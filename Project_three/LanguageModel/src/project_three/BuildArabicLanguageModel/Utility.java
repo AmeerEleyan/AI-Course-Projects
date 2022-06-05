@@ -8,17 +8,22 @@ package project_three.BuildArabicLanguageModel;
 public class Utility {
     public static String[] ngrams(String s, int len) {
         String[] parts = s.split(" ");
-        String[] result = new String[parts.length - len + 1];
-        for (int i = 0; i < parts.length - len + 1; i++) {
-            StringBuilder sb = new StringBuilder();
-            for (int k = 0; k < len; k++) {
-                if (parts[i + k].length() <= 1) continue;
-                if (k > 0) sb.append(" ");
-                sb.append(parts[i + k]);
+        try {
+            String[] result = new String[parts.length - len + 1];
+            for (int i = 0; i < parts.length - len + 1; i++) {
+                StringBuilder sb = new StringBuilder();
+                for (int k = 0; k < len; k++) {
+                    if (parts[i + k].length() <= 1) continue;
+                    if (k > 0) sb.append(" ");
+                    sb.append(parts[i + k]);
+                }
+                result[i] = sb.toString();
             }
-            result[i] = sb.toString();
+            return result;
+        }catch (NegativeArraySizeException | IndexOutOfBoundsException e){
+            System.out.println(e.getMessage());
         }
-        return result;
+        return null;
     }
 
 }

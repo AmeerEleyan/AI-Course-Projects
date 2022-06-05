@@ -9,7 +9,7 @@
    <children>
       <Button fx:id="btBrowse" layoutX="225.0" layoutY="113.0" mnemonicParsing="false" onAction="#handleBtBrowse" prefHeight="40.0" prefWidth="150.0" stylesheets="@../UseArabicLanguageModel/style.css" text="Browse Files" />
       <Button fx:id="btBuildModel" layoutX="225.0" layoutY="200.0" mnemonicParsing="false" onAction="#handleBtBuildModel" prefHeight="40.0" prefWidth="150.0" stylesheets="@../UseArabicLanguageModel/style.css" text="Build Model" />
-      <Label fx:id="lblMessage" alignment="CENTER" contentDisplay="CENTER" layoutX="171.0" layoutY="280.0" prefHeight="26.0" prefWidth="258.0" style="-fx-background-color: #ffffff;" text="The model was created successfully" textAlignment="CENTER" visible="false">
+      <Label fx:id="lblMessage" alignment="CENTER" contentDisplay="CENTER" layoutX="171.0" layoutY="280.0" prefHeight="26.0" prefWidth="258.0" style="-fx-background-color: #ffffff;" textAlignment="CENTER" visible="false">
          <font>
             <Font name="System Bold" size="14.0" />
          </font>
